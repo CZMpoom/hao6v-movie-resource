@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}影视资源库 - 列表{% endblock %}
+{% block content %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" action="/">
+      <div class="mb-3">
+        <span class="filter-label">类型</span>
+        <div class="filter-bar">
+          <a class="filter-btn {% if not category_id %}active{% endif %}"
+             href="{{ url_for('index', q=q, actor=actor, year=year) }}">全部</a>
+          {% for c in cats %}
+          <a class="filter-btn {% if c.id == category_id %}active{% endif %}"
+             href="{{ url_for('index', q=q, actor=actor, year=year, category=c.id) }}"
+             title="共 {{ c.cnt }} 部">{{ c.name }}<small class="ms-1 opacity-75">{{ c.cnt }}</small></a>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="mb-3">
+        <span class="filter-label">年份</span>
+        <div class="filter-bar">
+          <a class="filter-btn {% if not year %}active{% endif %}"
+             href="{{ url_for('index', q=q, actor=actor, category=category_id) }}">全部</a>
+          {% for y in years %}
+          <a class="filter-btn {% if y == year %}active{% endif %}"
+             href="{{ url_for('index', q=q, actor=actor, category=category_id, year=y) }}">{{ y }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="row g-2">
+        <div class="col-md-4">
+          <input class="form-control" type="text" name="q" value="{{ q }}"
+                 placeholder="片名 / 别名" autocomplete="off">
+        </div>
+        <div class="col-md-3">
+          <input class="form-control" type="text" name="actor" value="{{ actor }}"
+                 placeholder="演员（如：吴京）" autocomplete="off">
+        </div>
+        <div class="col-md-2 d-grid">
+          <button class="btn btn-primary" type="submit">查询</button>
+        </div>
+        <div class="col-md-3 d-grid">
+          <a class="btn btn-outline-secondary" href="/">清除筛选</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">共 {{ total }} 部资源</h5>
+  {% if q or actor or category_id or year %}
+  <a class="btn btn-sm btn-outline-secondary" href="/">清除筛选</a>
+  {% endif %}
+</div>
+
+{% if rows %}
+<div class="row g-2 row-cols-2 row-cols-md-3 row-cols-lg-5">
+  {% for r in rows %}
+  <div class="col">
+    <a class="card h-100 text-decoration-none shadow-sm movie-card" href="/resource/{{ r.id }}">
+      {% if r.poster_path %}
+      <img class="card-img-top poster" src="{{ r.poster_path|poster }}" alt="{{ r.clean_title or r.title }}" loading="lazy">
+      {% else %}
+      <div class="poster d-flex align-items-center justify-content-center bg-dark text-secondary">
+        <span class="px-2 text-center small">暂无海报</span>
+      </div>
+      {% endif %}
+      <div class="card-body p-3">
+        <div class="movie-title" title="{{ r.title }}">{{ r.clean_title or r.title }}</div>
+        <div class="small mt-2 d-flex align-items-center gap-1 flex-wrap">
+          {% if r.year %}<span class="badge text-bg-secondary">年份 {{ r.year }}</span>{% endif %}
+          {% if r.rating %}<span class="badge text-bg-warning text-dark">评分 {{ r.rating }}</span>{% endif %}
+          <span class="badge text-bg-light border">{{ '剧集' if r.media_type == 'tv' else '电影' }}</span>
+        </div>
+        {% if r.category_names %}
+        <div class="small text-muted text-truncate mt-1 card-cats" title="{{ r.category_names }}">{{ r.category_names }}</div>
+        {% endif %}
+        {% if r.episode_count %}
+        <div class="small text-muted mt-1">共 {{ r.episode_count }} 集</div>
+        {% endif %}
+        {% if r.overview %}
+        <div class="card-desc small text-muted mt-1" title="{{ r.overview }}">{{ r.overview }}</div>
+        {% endif %}
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+{% if pages > 1 %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center flex-wrap">
+    <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+      <a class="page-link" href="{{ url_for('index', q=q, actor=actor, category=category_id, year=year, page=page-1) }}">上一页</a>
+    </li>
+    {% for p in range(1, pages + 1) %}
+      {% if p == 1 or p == pages or (p >= page - 3 and p <= page + 3) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link" href="{{ url_for('index', q=q, actor=actor, category=category_id, year=year, page=p) }}">{{ p }}</a>
+      </li>
+      {% elif p == page - 4 or p == page + 4 %}
+      <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+    <li class="page-item {% if page >= pages %}disabled{% endif %}">
+      <a class="page-link" href="{{ url_for('index', q=q, actor=actor, category=category_id, year=year, page=page+1) }}">下一页</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+{% else %}
+<div class="alert alert-info">没有找到符合条件的资源，换个条件试试。</div>
+{% endif %}
+{% endblock %}

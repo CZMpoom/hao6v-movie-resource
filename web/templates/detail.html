@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}{{ r.clean_title or r.title }} - 详情{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">首页</a></li>
+    <li class="breadcrumb-item active">{{ r.clean_title or r.title }}</li>
+  </ol>
+</nav>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="row g-4">
+      <div class="col-md-3">
+        {% if r.poster_path %}
+        <img class="img-fluid rounded shadow poster-lg" src="{{ r.poster_path|poster('w500') }}" alt="{{ r.clean_title or r.title }}">
+        {% else %}
+        <div class="poster-lg d-flex align-items-center justify-content-center bg-dark text-secondary rounded">暂无海报</div>
+        {% endif %}
+      </div>
+      <div class="col-md-9">
+        <h4 class="mb-2">{{ r.clean_title or r.title }}</h4>
+        <p class="text-muted small mb-2">{{ r.title }}</p>
+        <div class="mb-3">
+          {% if r.year %}<span class="badge text-bg-secondary me-1">年份 {{ r.year }}</span>{% endif %}
+          <span class="badge text-bg-primary me-1">{{ '剧集' if r.media_type == 'tv' else '电影' }}</span>
+          {% if r.episode_count %}<span class="badge text-bg-info me-1">共 {{ r.episode_count }} 集</span>{% endif %}
+          {% if r.rating %}<span class="badge text-bg-warning text-dark me-1">评分 {{ r.rating }}</span>{% endif %}
+          <span class="badge text-bg-light border me-1">{{ r.category_names }}</span>
+          {% if r.tmdb_title %}<span class="badge text-bg-dark">TMDB: {{ r.tmdb_title }}</span>{% endif %}
+        </div>
+        <table class="table table-sm small align-middle mb-3" style="max-width: 720px">
+          <tbody>
+            {% if r.director %}<tr><th class="text-muted w-25">导演</th><td>{{ r.director }}</td></tr>{% endif %}
+            {% if r.language %}<tr><th class="text-muted">语言</th><td>{{ r.language }}</td></tr>{% endif %}
+            {% if r.country %}<tr><th class="text-muted">产地</th><td>{{ r.country }}</td></tr>{% endif %}
+            {% if r.genre %}<tr><th class="text-muted">类型</th><td>{{ r.genre }}</td></tr>{% endif %}
+            {% if r.release_date %}<tr><th class="text-muted">上映日期</th><td>{{ r.release_date|fmtdate }}</td></tr>{% endif %}
+            {% if r.tmdb_id %}<tr><th class="text-muted">TMDB</th><td><a href="https://www.themoviedb.org/{{ 'tv' if r.media_type == 'tv' else 'movie' }}/{{ r.tmdb_id }}" target="_blank" rel="noopener">#{{ r.tmdb_id }}</a></td></tr>{% endif %}
+          </tbody>
+        </table>
+        <p class="mb-1"><strong>简介</strong></p>
+        <p class="text-muted">{{ r.overview or '暂无简介' }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+  <div class="card-body">
+    <h5 class="mb-3">演员</h5>
+    {% if r.cast %}
+    <div>
+      {% for name in r.cast %}
+      <a class="badge text-bg-light border me-1 mb-1 text-decoration-none actor-chip" href="/?actor={{ name }}">{{ name }}</a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">暂无演员信息</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+  <div class="card-body">
+    <h5 class="mb-3">磁力链接（{{ r.magnets|length }} 条）</h5>
+    {% if r.magnets %}
+    <div class="table-responsive">
+      <table class="table table-sm align-middle">
+        <thead>
+          <tr><th style="width:45%">名称</th><th>磁力链接</th><th style="width:100px"></th></tr>
+        </thead>
+        <tbody>
+          {% for m in r.magnets %}
+          <tr>
+            <td class="text-truncate" style="max-width:220px" title="{{ m.name }}">{{ m.name }}</td>
+            <td class="text-truncate magnet-url" style="max-width:420px" title="{{ m.url }}">{{ m.url }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary" onclick="copyMagnet('{{ m.url }}', this)">复制</button>
+              <a class="btn btn-sm btn-outline-secondary" href="{{ m.url }}">打开</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted">暂无磁力链接</p>
+    {% endif %}
+    <p class="small text-muted mb-0">
+      站点详情页：
+      <a href="https://www.hao6v.cc{{ r.detail_url }}" target="_blank" rel="noopener">{{ r.detail_url }}</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function copyMagnet(url, btn) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function () {
+      btn.textContent = '已复制';
+      setTimeout(function () { btn.textContent = '复制'; }, 1500);
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '已复制';
+    setTimeout(function () { btn.textContent = '复制'; }, 1500);
+  }
+}
+</script>
+{% endblock %}

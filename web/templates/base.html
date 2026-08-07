@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}6v 影视资源库{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/">🎬 6v 影视资源库</a>
+      <div class="d-flex flex-grow-1 justify-content-end">
+        <form class="d-flex w-50" method="get" action="/">
+          <input class="form-control form-control-sm me-2" type="search" name="q"
+                 placeholder="搜索片名 / 别名..." value="{{ q or '' }}" autocomplete="off">
+          <button class="btn btn-sm btn-outline-light flex-shrink-0" type="submit">搜索</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  <div class="container py-4">
+    {% block content %}{% endblock %}
+  </div>
+  <footer class="text-center text-muted small py-3">
+    数据来源：hao6v.cc（磁力链接） + TMDB（简介/海报/演员），仅供个人学习使用
+  </footer>
+  <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

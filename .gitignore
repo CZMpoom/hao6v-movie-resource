@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/logs/
+data/
+config.py
+deploy/ql_data/
+.idea/
+.vscode/

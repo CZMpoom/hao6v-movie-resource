@@ -1,0 +1,40 @@
+# 飞牛 NAS Docker Compose 部署：
+#   qinglong  -> 青龙面板（定时抓取更新，默认端口 5700）
+#   web       -> Flask 展示服务（默认端口 5000）
+#
+# 用法（在 deploy 目录下执行，或在 fnOS 的 Compose 里粘贴）：
+#   docker compose up -d
+#
+# 数据库/API 配置可通过环境变量覆盖（默认读取项目 config.py）：
+#   HAO6V_DB_HOST / HAO6V_DB_PORT / HAO6V_DB_USER / HAO6V_DB_PASSWORD / HAO6V_DB_NAME
+#   HAO6V_TMDB_API_KEY
+services:
+  qinglong:
+    image: whyour/qinglong:latest
+    container_name: hao6v-qinglong
+    restart: unless-stopped
+    ports:
+      - "5700:5700"
+    volumes:
+      - ./ql_data:/ql/data                # 青龙数据（任务、日志、配置）
+      - ../:/ql/scripts/hao6v_movie       # 项目挂载进青龙容器
+    environment:
+      - TZ=Asia/Shanghai
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: hao6v-web:latest
+    container_name: hao6v-web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - TZ=Asia/Shanghai
+      # 在此填入你的数据库与 TMDB 配置（示例）：
+      # - HAO6V_DB_HOST=你的数据库地址
+      # - HAO6V_DB_PORT=3306
+      # - HAO6V_DB_USER=root
+      # - HAO6V_DB_PASSWORD=你的数据库密码
+      # - HAO6V_TMDB_API_KEY=你的TMDB_API_KEY

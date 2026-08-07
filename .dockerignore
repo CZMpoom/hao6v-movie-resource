@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.venv/
+venv/
+data/logs/
+data/screenshots/
+deploy/ql_data/
+README.md
